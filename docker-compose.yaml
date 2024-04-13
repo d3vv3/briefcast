@@ -1,6 +1,6 @@
 services:
   whisper:
-    image: "whisper-api:latest"
+    image: "ghcr.io/d3vv3/whisper-api:latest"
     build:
       context: whisper
       dockerfile: Dockerfile

@@ -11,6 +11,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
     - name: Checkout repository
@@ -24,7 +27,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build Docker image
-      run: docker build -t ghcr.io/${{ github.repository_owner }}/whisper-api:latest .
+      run: docker build -t ghcr.io/${{ github.repository_owner }}/whisper-api:latest ./whisper -f ./whisper/Dockerfile
 
     - name: Push Docker image to GitHub Container Registry
       run: docker push ghcr.io/${{ github.repository_owner }}/whisper-api:latest
