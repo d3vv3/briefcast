@@ -7,12 +7,15 @@ from faster_whisper import WhisperModel
 from faster_whisper.vad import VadOptions
 from loguru import logger
 
-whisper_model = os.environ.get("WHISPER_MODEL", "large-v3")
-device = os.environ.get("DEVICE", "auto")
-compute_type = os.environ.get("COMPUTE_TYPE", "float16")
+WHISPER_MODEL = os.environ.get("WHISPER_MODEL", "large-v3")
+DEVICE = os.environ.get("DEVICE", "auto")
+COMPUTE_TYPE = os.environ.get("COMPUTE_TYPE", "float16")
 
 model = WhisperModel(
-    whisper_model, device=device, compute_type=compute_type, download_root="models"
+    WHISPER_MODEL,
+    device=DEVICE,
+    compute_type=COMPUTE_TYPE,
+    download_root="models",
 )
 
 app = FastAPI()
@@ -176,5 +179,9 @@ async def transcribe(
     logger.info(
         "Transcription took %s seconds"
         % (transcription_end - language_guess_end).seconds,
+    )
+    logger.info(
+        "Speed: x%s"
+        % (info.duration / (transcription_end - language_guess_end).seconds)
     )
     return Response(content="\n".join(result), media_type="text/plain")
