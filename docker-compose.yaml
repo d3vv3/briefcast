@@ -39,3 +39,20 @@ services:
 
 volumes:
   models:
+      WHISPER_MODEL: base
+      # "auto" or "cuda" or "cpu"
+      DEVICE: auto
+      # See https://opennmt.net/CTranslate2/quantization.html
+      COMPUTE_TYPE: int8
+    volumes:
+      - ./models:/app/models
+
+  trimmer:
+    image: ghcr.io/d3vv3/trimmer-api:latest
+    build:
+      context: trimmer
+      dockerfile: Dockerfile
+    ports:
+      - 8001:80
+    environment:
+      OPENAI_API_KEY: sk-something
