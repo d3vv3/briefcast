@@ -1,13 +1,13 @@
 services:
   whisper:
-    image: "ghcr.io/d3vv3/whisper-api:latest"
+    image: ghcr.io/d3vv3/whisper-api:latest
     container_name: briefcast-whisper
     restart: unless-stopped
     build:
       context: whisper
       dockerfile: Dockerfile
     ports:
-      - "11000:8000"
+      - 11000:8000
     volumes:
       - models:/app/models
     environment:
@@ -26,6 +26,16 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
+
+  chopper:
+    image: ghcr.io/d3vv3/chopper-api:latest
+    container_name: briefcast-chopper
+    restart: unless-stopped
+    build:
+      context: chopper
+      dockerfile: Dockerfile
+    ports:
+      - 11001:8000
 
 volumes:
   models:
