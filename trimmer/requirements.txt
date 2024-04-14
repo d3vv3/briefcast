@@ -1,0 +1,5 @@
+loguru
+langchain
+langchain-openai
+tiktoken
+langchain-text-splitters
