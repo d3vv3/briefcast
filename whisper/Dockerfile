@@ -1,4 +1,4 @@
-from nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04
+from nvidia/cuda:12.0.1-cudnn8-runtime-ubuntu20.04
 
 # Install Python
 RUN apt-get update && apt-get install -y python3 python3-pip

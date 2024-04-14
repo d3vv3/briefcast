@@ -1,19 +1,31 @@
 services:
   whisper:
     image: "ghcr.io/d3vv3/whisper-api:latest"
+    container_name: briefcast-whisper
+    restart: unless-stopped
     build:
       context: whisper
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "11000:8000"
+    volumes:
+      - models:/app/models
     environment:
       # tiny.en, tiny, base.en, base, small.en, small, medium.en, medium,
       # large-v1, large-v2, large-v3, large, distil-large-v2,
       # distil-medium.en, distil-small.en
-      WHISPER_MODEL: "base"
+      WHISPER_MODEL: "medium"
       # "auto" or "cuda" or "cpu"
-      DEVICE: "auto"
+      DEVICE: "cuda"
       # See https://opennmt.net/CTranslate2/quantization.html
-      COMPUTE_TYPE: "int8"
-    volumes:
-      - ./models:/app/models
+      COMPUTE_TYPE: "float16"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+volumes:
+  models:
