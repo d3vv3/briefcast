@@ -1,3 +1,5 @@
+from os import getenv
+
 from fastapi import FastAPI, UploadFile
 from langchain.chains import MapReduceDocumentsChain, ReduceDocumentsChain
 from langchain.chains.combine_documents.stuff import StuffDocumentsChain
@@ -9,7 +11,7 @@ from langchain_text_splitters import CharacterTextSplitter
 app = FastAPI()
 llm = OpenAI(temperature=0.3, model="gpt-3.5-turbo-instruct")
 
-prompt = PromptTemplate.from_template(
+prompt_chunk_summary = PromptTemplate.from_template(
     """**Input**: A transcript file with timestamps (format: [start_time -> end_time] text)
 **Task**: Filter out lines that are not relevant to the main topic of the podcast transcription, condensing the transcript to focus on the primary discussion.
 **Objective**: Reduce the overall time of the transcription by removing:
@@ -36,18 +38,32 @@ prompt = PromptTemplate.from_template(
 **Note**: The output transcript should maintain the original timestamp format and only include the relevant lines that align with the main topic.
 **Important**: Only output the condensed transcript file, without any additional text or explanations. The output should consist solely of the relevant lines with timestamps, formatted as shown above.
 
-Input transcription file:
-```
+Input transcription:
+
 {transcription}
-```
+
+Output:
+"""
+)
+
+prompt_summaries_reduce = PromptTemplate.from_template(
+    """**Input**: Chunks of a podcast transcript with timestamps (format: [start_time -> end_time] text)
+**Output**: A condensed transcript file with timestamps (format: [start_time -> end_time] text), containing only the relevant lines that align with the main topic of the podcast.
+
+**Note**: The output transcript should maintain the original timestamp format and only include the relevant lines that align with the main topic.
+**Important**: Only output the condensed transcript file, without any additional text or explanations. The output should consist solely of the relevant lines with timestamps, formatted as shown above.
+
+Input:
+
+{transcription}
 
 Output:
 """
 )
 
 # The prompt is the same for both the map and reduce chains
-map_chain = LLMChain(llm=llm, prompt=prompt)
-reduce_chain = LLMChain(llm=llm, prompt=prompt)
+map_chain = LLMChain(llm=llm, prompt=prompt_chunk_summary)
+reduce_chain = LLMChain(llm=llm, prompt=prompt_summaries_reduce)
 
 combine_documents_chain = StuffDocumentsChain(
     llm_chain=reduce_chain, document_variable_name="transcription"
@@ -71,6 +87,14 @@ text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
     separator="\n", chunk_size=2000, chunk_overlap=0
 )
 
+from langfuse.callback import CallbackHandler
+
+langfuse_handler = CallbackHandler(
+    getenv("LANGFUSE_PK"),
+    getenv("LANGFUSE_SK"),
+    getenv("LANGFUSE_URL"),
+)
+
 
 @app.get("/")
 def read_root():
@@ -81,5 +105,8 @@ def read_root():
 def trim(transcription_file: UploadFile):
     transcription_text = transcription_file.file.read().decode("utf-8")
     split_transcription = text_splitter.create_documents([transcription_text])
-    response = map_reduce_chain.invoke(split_transcription)
+    response = map_reduce_chain.invoke(
+        split_transcription,
+        config={"callbacks": [langfuse_handler]},
+    )
     return {"trimmed_transcription": response["output_text"].replace("```\n", "")}
