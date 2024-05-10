@@ -55,4 +55,7 @@ volumes:
     ports:
       - 8001:80
     environment:
-      OPENAI_API_KEY: sk-something
+      LANGFUSE_PK: pk-something
+      LANGFUSE_SK: sk-something
+      LANGFUSE_URL: https://langfuse.example.space
+      OPENAI_API_KEY: sk-other-something
