@@ -1,6 +1,5 @@
+uvicorn
+python-multipart
+fastapi
 loguru
-langfuse
-langchain
-langchain-openai
-tiktoken
-langchain-text-splitters
+google-generativeai

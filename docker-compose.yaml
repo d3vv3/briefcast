@@ -27,6 +27,16 @@ services:
               count: all
               capabilities: [gpu]
 
+  trimmer:
+    image: ghcr.io/d3vv3/trimmer-api:latest
+    build:
+      context: trimmer
+      dockerfile: Dockerfile
+    ports:
+      - 11001:80
+    environment:
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+
   chopper:
     image: ghcr.io/d3vv3/chopper-api:latest
     container_name: briefcast-chopper
@@ -35,27 +45,7 @@ services:
       context: chopper
       dockerfile: Dockerfile
     ports:
-      - 11001:8000
+      - 11002:8000
 
 volumes:
   models:
-      WHISPER_MODEL: base
-      # "auto" or "cuda" or "cpu"
-      DEVICE: auto
-      # See https://opennmt.net/CTranslate2/quantization.html
-      COMPUTE_TYPE: int8
-    volumes:
-      - ./models:/app/models
-
-  trimmer:
-    image: ghcr.io/d3vv3/trimmer-api:latest
-    build:
-      context: trimmer
-      dockerfile: Dockerfile
-    ports:
-      - 8001:80
-    environment:
-      LANGFUSE_PK: pk-something
-      LANGFUSE_SK: sk-something
-      LANGFUSE_URL: https://langfuse.example.space
-      OPENAI_API_KEY: sk-other-something
