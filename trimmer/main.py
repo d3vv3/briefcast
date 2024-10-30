@@ -1,15 +1,28 @@
 import os
 
 from fastapi import FastAPI, UploadFile
-from langchain_community.llms import Ollama
+from langchain_google_genai import (
+    ChatGoogleGenerativeAI,
+    HarmBlockThreshold,
+    HarmCategory,
+)
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import PromptTemplate
 
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3")
-OLLAMA_HOST = os.getenv("OLLAMA_HOST", "https://ollama.example.org")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-1.5-flash")
 
 app = FastAPI()
-llm = Ollama(base_url=OLLAMA_HOST, model=OLLAMA_MODEL)
+llm = ChatGoogleGenerativeAI(
+    model=GEMINI_MODEL,
+    safety_settings={
+        HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
+    },
+    temperature=0,
+    max_tokens=None,
+    timeout=None,
+    max_retries=2,
+)
+
 
 prompt = PromptTemplate.from_template(
     """Here is the transcription file of a podcast.
