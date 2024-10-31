@@ -1,11 +1,12 @@
-import os
-from datetime import datetime
+from fastapi import APIRouter, Response, UploadFile
 from typing import Iterable, List, Optional, Tuple, Union
-
-from fastapi import FastAPI, Response, UploadFile
-from faster_whisper import WhisperModel
 from faster_whisper.vad import VadOptions
 from loguru import logger
+from datetime import datetime
+from faster_whisper import WhisperModel
+import os
+
+router = APIRouter()
 
 WHISPER_MODEL = os.environ.get("WHISPER_MODEL", "large-v3")
 DEVICE = os.environ.get("DEVICE", "auto")
@@ -18,15 +19,7 @@ model = WhisperModel(
     download_root="models",
 )
 
-app = FastAPI()
-
-
-@app.get("/")
-async def read_root():
-    return {"message": "Hello, World!"}
-
-
-@app.post("/transcribe")
+@router.post("/transcribe")
 async def transcribe(
     audio_file: UploadFile,
     language: str = None,

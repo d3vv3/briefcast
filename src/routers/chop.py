@@ -1,22 +1,15 @@
-import mimetypes
-import tempfile
-
-import ffmpeg
-from fastapi import FastAPI, UploadFile
+from fastapi import APIRouter, UploadFile
 from fastapi.responses import FileResponse
 from loguru import logger
+import mimetypes
+import tempfile
 import json
+import ffmpeg
 
-app = FastAPI()
+router = APIRouter()
 
-
-@app.get("/")
-async def read_root():
-    return {"message": "Hello, World!"}
-
-
-@app.post("/chop")
-async def transcribe(
+@router.post("/chop")
+async def chop(
     audio_file: UploadFile, transcription_file: UploadFile
 ) -> FileResponse:
     logger.info("audio file name: %s" % audio_file.filename)

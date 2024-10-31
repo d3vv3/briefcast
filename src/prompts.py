@@ -1,14 +1,4 @@
-import os
-
-from fastapi import FastAPI, UploadFile
-import google.generativeai as genai
-
-app = FastAPI()
-genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-
-model = genai.GenerativeModel("gemini-1.5-flash")
-
-prompt = """**Input**: A transcript file with timestamps (format: [start_time -> end_time] text)
+trimmer_prompt = """**Input**: A transcript file with timestamps (format: [start_time -> end_time] text)
 **Task**: Filter out lines that are not relevant to the main topic of the podcast transcription, condensing the transcript to focus on the primary discussion.
 **Objective**: Reduce the overall time of the transcription by removing:
     - Off-topic conversations
@@ -40,14 +30,3 @@ Input transcription:
 
 Output:
 """
-
-@app.get("/")
-def read_root():
-    return {"message": "Hello, World!"}
-
-
-@app.post("/trim")
-def trim(transcription_file: UploadFile):
-    transcription_text = transcription_file.file.read().decode("utf-8")
-    response = model.generate_content(prompt.format(transcription=transcription_text))
-    return {"trimmed_transcription": response.text}

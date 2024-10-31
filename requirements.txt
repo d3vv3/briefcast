@@ -3,3 +3,7 @@ fastapi
 uvicorn
 loguru
 python-multipart
+google-generativeai
+uvicorn
+yt-dlp
+ffmpeg-python

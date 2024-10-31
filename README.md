@@ -16,8 +16,8 @@ Just send the audio and the API will return the transcribed text as a text file.
 
 ```bash
 curl \
-  -X POST "localhost:11000/transcribe?beam_size=5" \
-  -F audio_file=@/tmp/podcast.opus
+  -X POST "http://localhost:11000/transcribe?beam_size=5" \
+  -F audio_file=@/tmp/podcast.mp3 \
   -o /tmp/transcript.txt
 ```
 
@@ -35,7 +35,7 @@ a new transcript with the dropped (removed) lines.
 
 ```bash
 curl \
-  -X POST "localhost:11001/trim" \
+  -X POST "http://localhost:11000/trim" \
   -F transcription_file=@/tmp/transcript.txt \
   -o /tmp/trimmed_transcript.txt
 ```
@@ -48,10 +48,10 @@ file trimmed accurately to the input transcript file.
 
 ```bash
 curl \
-  -X POST "localhost:11002/chop" \
+  -X POST "http://localhost:11000/chop" \
   -F transcription_file=@/tmp/trimmed_transcript.txt \
-  -F audio_file=@/tmp/podcast.opus \
-  -o /tmp/result.opus
+  -F audio_file=@/tmp/podcast.mp3 \
+  -o /tmp/result.mp3
 ```
 
 ## Deployment
