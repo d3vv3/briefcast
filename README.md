@@ -14,10 +14,11 @@ transcribe library.
 
 Just send the audio and the API will return the transcribed text as a text file.
 
-```
+```bash
 curl \
-  -i -X POST "localhost:11000/transcribe?beam_size=5" \
-  -F audio_file=@some_podcast.opus
+  -X POST "localhost:11000/transcribe?beam_size=5" \
+  -F audio_file=@/tmp/podcast.opus
+  -o /tmp/transcript.txt
 ```
 
 You can add `faster-whisper` `transcribe` arguments as query parameters.
@@ -27,18 +28,30 @@ You can add `faster-whisper` `transcribe` arguments as query parameters.
 
 The image is CUDA enabled, so it will use the GPU if available.
 
+### trimmer
+
+The trimmer is a simple fastapi API that takes a whisper transcript and returns
+a new transcript with the dropped (removed) lines.
+
+```bash
+curl \
+  -X POST "localhost:11001/trim" \
+  -F transcription_file=@/tmp/transcript.txt \
+  -o /tmp/trimmed_transcript.txt
+```
+
 ### chopper
 
 The chopper is a simple fastapi API that takes a whisper transcript file with
 dropped (removed) lines, and the original audio file, and returns a new audio
 file trimmed accurately to the input transcript file.
 
-```
+```bash
 curl \
-  -i -X POST "localhost:11001/chop" \
-  -F transcription_file=@/tmp/chopped_transcript.txt \
-  -F audio_file=@/tmp/some_file.opus \
-  -o result.opus
+  -X POST "localhost:11002/chop" \
+  -F transcription_file=@/tmp/trimmed_transcript.txt \
+  -F audio_file=@/tmp/podcast.opus \
+  -o /tmp/result.opus
 ```
 
 ## Deployment

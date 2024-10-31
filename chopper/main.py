@@ -5,6 +5,7 @@ import ffmpeg
 from fastapi import FastAPI, UploadFile
 from fastapi.responses import FileResponse
 from loguru import logger
+import json
 
 app = FastAPI()
 
@@ -21,8 +22,11 @@ async def transcribe(
     logger.info("audio file name: %s" % audio_file.filename)
     logger.info("audio file content_type: %s" % audio_file.content_type)
     logger.info("transcription file name: %s" % transcription_file.filename)
+    transcript = transcription_file.file.read().decode("utf-8")
+    transcript_lines = json.loads(transcript).get("trimmed_transcription", "").split("\n")
     cuts = []
-    for line in transcription_file.file.read().decode("utf-8").split("\n")[:-1]:
+    # Remove last line because it does not have an end
+    for line in transcript_lines[:-1]:
         start, end = line[1:].split("s]")[0].split("s -> ")
         cuts.append("between(t,%s,%s)" % (start, end))
     media_type = mimetypes.guess_type(audio_file.filename)[0]
